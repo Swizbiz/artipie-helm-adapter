@@ -73,12 +73,10 @@ public final class YamlWriter {
      * @throws IOException In case of error during writing.
      */
     public void writeLine(final String data, final int xindendt) throws IOException {
+        final StringBuilder bldr = new StringBuilder();
         this.writer.write(
-            String.format(
-                "%s%s",
-                StringUtils.repeat(' ', xindendt * this.indnt),
-                data
-            )
+            bldr.append(StringUtils.repeat(' ', xindendt * this.indnt))
+                .append(data).toString()
         );
         this.writer.newLine();
     }
@@ -91,10 +89,12 @@ public final class YamlWriter {
      */
     public void writeAndReplaceTagGenerated(final String line) throws IOException {
         if (line.startsWith(YamlWriter.TAG_GENERATED)) {
+            final StringBuilder bldr = new StringBuilder();
             this.writeLine(
-                String.format(
-                    "%s %s", YamlWriter.TAG_GENERATED, new DateTimeNow().asString()
-                ),
+                bldr.append(YamlWriter.TAG_GENERATED)
+                    .append(" ")
+                    .append(new DateTimeNow().asString())
+                    .toString(),
                 0
             );
         } else {

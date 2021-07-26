@@ -1,3 +1,6 @@
+## v1.1.1
+  - perf: #194 - Avoided using the regex expression and `String.format`
+
 ## v1.0.1
   - dep: #182 - Excluded and removed some dependencies
   - refactor: #113 - Used tokenizer instead of copying index for Helm SDK API (`add` and `remove` methods)

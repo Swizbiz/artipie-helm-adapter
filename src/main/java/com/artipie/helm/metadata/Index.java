@@ -26,6 +26,7 @@ package com.artipie.helm.metadata;
 import com.artipie.asto.Key;
 import com.artipie.asto.Remaining;
 import com.artipie.asto.Storage;
+import com.artipie.helm.misc.SpaceInBeginning;
 import com.artipie.http.misc.TokenizerFlatProc;
 import hu.akarnokd.rxjava2.interop.FlowableInterop;
 import io.reactivex.Flowable;
@@ -103,15 +104,6 @@ public interface Index {
         }
 
         /**
-         * Obtains last position of space from beginning before meeting any character.
-         * @param line Text line
-         * @return Last position of space from beginning before meeting any character.
-         */
-        private static int lastPosOfSpaceInBegin(final String line) {
-            return line.length() - line.replaceAll("^\\s*", "").length();
-        }
-
-        /**
          * Parses index file and extracts versions for packages. The general idea of this parser
          * is next. All info about charts is located in `entries:` section. When we enter
          * in this section (e. g. read a line which is equal to `entries`), we started to
@@ -134,8 +126,8 @@ public interface Index {
                     .scan(
                         new ScanContext(),
                         (ctx, curr) -> {
-                            final int pos = WithBreaks.lastPosOfSpaceInBegin(curr);
-                            if (pos > 0 && ctx.indent == 0) {
+                            final int pos = new SpaceInBeginning(curr).last();
+                            if (ctx.indent == 0) {
                                 ctx.setIndent(pos);
                             }
                             if (curr.startsWith(WithBreaks.ENTRS)) {

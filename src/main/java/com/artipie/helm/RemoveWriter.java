@@ -33,6 +33,7 @@ import com.artipie.helm.metadata.Index;
 import com.artipie.helm.metadata.ParsedChartName;
 import com.artipie.helm.metadata.YamlWriter;
 import com.artipie.helm.misc.EmptyIndex;
+import com.artipie.helm.misc.SpaceInBeginning;
 import com.artipie.http.misc.TokenizerFlatProc;
 import hu.akarnokd.rxjava2.interop.FlowableInterop;
 import io.reactivex.Flowable;
@@ -130,7 +131,7 @@ public interface RemoveWriter {
                                             new ScanContext(bufw, 2),
                                             (ctx, curr) -> {
                                                 final String trimmed = curr.trim();
-                                                final int pos = lastPosOfSpaceInBegin(curr);
+                                                final int pos = new SpaceInBeginning(curr).last();
                                                 if (!ctx.inentries) {
                                                     ctx.setEntries(trimmed.equals(Asto.ENTRS));
                                                 }
@@ -280,15 +281,6 @@ public interface RemoveWriter {
                     }
                 }
             }
-        }
-
-        /**
-         * Obtains last position of space from beginning before meeting any character.
-         * @param line Text line
-         * @return Last position of space from beginning before meeting any character.
-         */
-        private static int lastPosOfSpaceInBegin(final String line) {
-            return line.length() - line.replaceAll("^\\s*", "").length();
         }
 
         /**
