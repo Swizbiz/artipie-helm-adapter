@@ -24,8 +24,11 @@
 
 package com.artipie.helm.http;
 
+import com.artipie.asto.Content;
+import com.artipie.asto.Key;
 import com.artipie.asto.Remaining;
 import com.artipie.asto.Storage;
+import com.artipie.asto.rx.RxStorageWrapper;
 import com.artipie.helm.TgzArchive;
 import com.artipie.helm.metadata.IndexYaml;
 import com.artipie.http.Response;
@@ -53,6 +56,7 @@ import org.reactivestreams.Publisher;
  * @todo #13:30min Create an integration test
  *  We need an integration test for this class with described logic of upload from client side
  * @checkstyle MethodBodyCommentsCheck (500 lines)
+ * @checkstyle ClassDataAbstractionCouplingCheck (500 lines)
  */
 final class PushChartSlice implements Slice {
 
@@ -80,16 +84,21 @@ final class PushChartSlice implements Slice {
         ).value("updateIndex");
         return new AsyncResponse(
             memory(body).flatMapCompletable(
-                tgz -> tgz.save(this.storage).flatMapCompletable(
-                    key -> {
-                        final Completable res;
-                        if (!upd.isPresent() || upd.get().equals("true")) {
-                            res = new IndexYaml(this.storage).update(tgz);
-                        } else {
-                            res = Completable.complete();
+                tgz -> new RxStorageWrapper(this.storage).save(
+                    new Key.From(tgz.name()),
+                    new Content.From(tgz.bytes())
+                ).andThen(
+                    Completable.defer(
+                        () -> {
+                            final Completable res;
+                            if (!upd.isPresent() || upd.get().equals("true")) {
+                                res = new IndexYaml(this.storage).update(tgz);
+                            } else {
+                                res = Completable.complete();
+                            }
+                            return res;
                         }
-                        return res;
-                    }
+                    )
                 )
             ).andThen(Single.just(new RsWithStatus(StandardRs.EMPTY, RsStatus.OK)))
         );

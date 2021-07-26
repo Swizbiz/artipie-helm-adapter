@@ -24,18 +24,12 @@
 package com.artipie.helm;
 
 import com.artipie.asto.ArtipieIOException;
-import com.artipie.asto.Content;
-import com.artipie.asto.Key;
-import com.artipie.asto.Storage;
-import com.artipie.asto.rx.RxStorageWrapper;
-import io.reactivex.Flowable;
-import io.reactivex.Single;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -45,27 +39,16 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
-import org.reactivestreams.Subscriber;
 
 /**
  * A .tgz archive file.
  * @since 0.2
- * @checkstyle MethodBodyCommentsCheck (500 lines)
- * @checkstyle NonStaticMethodCheck (500 lines)
- * @checkstyle AvoidInlineConditionalsCheck (500 lines)
- * @checkstyle ClassDataAbstractionCouplingCheck (500 lines)
  */
 @SuppressWarnings({
     "PMD.ArrayIsStoredDirectly",
-    "PMD.AvoidBranchingStatementAsLastInLoop",
     "PMD.AssignmentInOperand"
 })
-public final class TgzArchive implements Content {
-
-    /**
-     * The eight kb.
-     */
-    private static final int EIGHT_KB = 8 * 1024;
+public final class TgzArchive {
 
     /**
      * The archive content.
@@ -73,11 +56,17 @@ public final class TgzArchive implements Content {
     private final byte[] content;
 
     /**
+     * Chart yaml file.
+     */
+    private final ChartYaml chart;
+
+    /**
      * Ctor.
      * @param content The archive content.
      */
     public TgzArchive(final byte[] content) {
         this.content = content;
+        this.chart = new ChartYaml(this.file("Chart.yaml"));
     }
 
     /**
@@ -85,8 +74,7 @@ public final class TgzArchive implements Content {
      * @return How the archive should be named on the file system
      */
     public String name() {
-        final ChartYaml chart = this.chartYaml();
-        return String.format("%s-%s.tgz", chart.name(), chart.version());
+        return String.format("%s-%s.tgz", this.chart.name(), this.chart.version());
     }
 
     /**
@@ -110,7 +98,7 @@ public final class TgzArchive implements Content {
             )
         );
         meta.put("digest", DigestUtils.sha256Hex(this.content));
-        meta.putAll(this.chartYaml().fields());
+        meta.putAll(this.chart.fields());
         return meta;
     }
 
@@ -119,42 +107,15 @@ public final class TgzArchive implements Content {
      * @return The Chart.yaml file.
      */
     public ChartYaml chartYaml() {
-        return new ChartYaml(this.file("Chart.yaml"));
+        return this.chart;
     }
 
     /**
-     * Save archive in an asto storage.
-     * @param storage The storage to save archive on.
-     * @return Asto location, where archive is save.
+     * Obtains binary content of archive.
+     * @return Byte array with content of archive.
      */
-    public Single<Key> save(final Storage storage) {
-        final Key.From key = new Key.From(this.name());
-        return new RxStorageWrapper(storage)
-            .save(key, this)
-            .andThen(Single.just(key));
-    }
-
-    @Override
-    public Optional<Long> size() {
-        return Optional.of(this.content.length).map(Integer::longValue);
-    }
-
-    @Override
-    public void subscribe(final Subscriber<? super ByteBuffer> subscriber) {
-        final int resid = this.content.length % TgzArchive.EIGHT_KB;
-        final int last = resid == 0 ? 0 : 1;
-        final int chunks = this.content.length / TgzArchive.EIGHT_KB + last;
-        final ArrayList<ByteBuffer> arr = new ArrayList<>(chunks);
-        for (int idx = 0; idx < chunks; idx += 1) {
-            final int len;
-            if (idx == chunks - 1 && last == 1) {
-                len = resid;
-            } else {
-                len = TgzArchive.EIGHT_KB;
-            }
-            arr.add(ByteBuffer.wrap(this.content, idx * TgzArchive.EIGHT_KB, len));
-        }
-        Flowable.fromIterable(arr).subscribe(subscriber);
+    public byte[] bytes() {
+        return Arrays.copyOf(this.content, this.content.length);
     }
 
     /**

@@ -1,5 +1,6 @@
 ## v1.1.1
   - perf: #194 - Avoided using the regex expression and `String.format`
+  - perf: #194 - Avoided reading chart file for each method in `TgzArchive`
 
 ## v1.0.1
   - dep: #182 - Excluded and removed some dependencies

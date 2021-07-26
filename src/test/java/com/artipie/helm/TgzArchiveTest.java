@@ -23,13 +23,8 @@
  */
 package com.artipie.helm;
 
-import com.artipie.asto.Key;
-import com.artipie.asto.Storage;
-import com.artipie.asto.ext.PublisherAs;
-import com.artipie.asto.memory.InMemoryStorage;
 import com.artipie.asto.test.TestResource;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.Collections;
 import java.util.Optional;
 import org.cactoos.list.ListOf;
@@ -56,34 +51,6 @@ public final class TgzArchiveTest {
                 new TestResource("tomcat-0.4.1.tgz").asBytes()
             ).name(),
             new IsEqual<>("tomcat-0.4.1.tgz")
-        );
-    }
-
-    @Test
-    public void sizeHasCorrectValue() throws IOException {
-        final TestResource file = new TestResource("tomcat-0.4.1.tgz");
-        MatcherAssert.assertThat(
-            new TgzArchive(
-                file.asBytes()
-            ).size().get(),
-            new IsEqual<>(
-                Files.size(file.asPath())
-            )
-        );
-    }
-
-    @Test
-    public void savedCorrectly() throws IOException {
-        final Storage storage = new InMemoryStorage();
-        final String name = "tomcat-0.4.1.tgz";
-        final byte[] file = new TestResource(name).asBytes();
-        new TgzArchive(file)
-            .save(storage).blockingGet();
-        MatcherAssert.assertThat(
-            new PublisherAs(storage.value(new Key.From(name)).join())
-                .bytes()
-                .toCompletableFuture().join(),
-            new IsEqual<>(file)
         );
     }
 
