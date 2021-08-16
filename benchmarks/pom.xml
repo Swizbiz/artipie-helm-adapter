@@ -14,6 +14,7 @@
   <properties>
     <jmh.version>1.29</jmh.version>
     <asto.version>1.2.0</asto.version>
+    <qulice.license>${project.basedir}/LICENSE.header</qulice.license>
   </properties>
   <dependencies>
     <dependency>
