@@ -22,25 +22,23 @@ jobs:
           echo "REPO=helm" >> $GITHUB_ENV
           echo "http_proxy=http://localhost:3128" >> $GITHUB_ENV
           echo "https_proxy=http://localhost:3128" >> $GITHUB_ENV
-          echo "$GITHUB_WORKSPACE"
       - name: Run target benchmark
         run: |
-          rm -rf benchmarks
-          git clone https://github.com/artipie/benchmarks.git
-          cd benchmarks/adapters
-          echo "repo value: ${{ env.REPO }}"
-          make run TARGET=${{ env.REPO }}
-          mkdir -p /tmp/artipie-bench/$REPO/benchmarks/results/${{ env.TAG }}
-          cp -avr out/${{ env.REPO }} /tmp/artipie-bench/${{ env.REPO }}/benchmarks/results/${{ env.TAG }}
-      - name: Commit results
+          git clone https://github.com/artipie/benchmarks.git tmp-bench
+          cd tmp-bench/adapters
+          mkdir -p $GITHUB_WORKSPACE/benchmarks/results/${{ env.TAG }}
+          mkdir -p out/${{ env.REPO }}
+          echo "tmp_one" > out/${{ env.REPO }}/first.txt
+          echo "tmp_two" > out/${{ env.REPO }}/second.txt
+          cp -avr out/${{ env.REPO }}/* $GITHUB_WORKSPACE/benchmarks/results/${{ env.TAG }}
+          cd ../..
+          rm -rf tmp-bench
+#          make run TARGET=${{ env.REPO }}
+      - name: Commit and push results
         run: |
-          cd /tmp/artipie-bench/${{ env.REPO }}
-          git config --local user.name "github-action"
-          git config --local user.email "benchmarks@artipie.com"
+          git config --global user.name "github-action"
+          git config --global user.email "benchmarks@artipie.com"
+          git status
           git add .
-          git commit -m "added results of benchmarks to readme (through action)"
-      - name: Push results # push the output folder to the repo
-        uses: ad-m/github-push-action@master
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          force: true
+          git commit -m "bench: added results of benchmarks to readme (through action)"
+          git push
