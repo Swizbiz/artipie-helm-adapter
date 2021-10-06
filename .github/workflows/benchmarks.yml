@@ -3,7 +3,7 @@ name: Run benchmarks
 #  push:
 #    tags:
 #      - 'v*'
-on:
+"on":
   push:
     branches:
       - master
@@ -41,4 +41,9 @@ jobs:
           git status
           git add .
           git commit -m "bench: added results of benchmarks to readme (through action)"
-          git push
+          git rev-parse HEAD
+          git show-ref --head
+          git --no-pager branch -avv --no-color --list
+          git log -1 --no-color
+          git status
+          git push pull HEAD:223/merge
