@@ -1,15 +1,15 @@
 name: Run benchmarks
-#on:
-#  push:
-#    tags:
-#      - 'v*'
-"on":
+on:
   push:
-    branches:
-      - master
-  pull_request:
-    branches:
-      - master
+    tags:
+      - 'test*'
+#"on":
+#  push:
+#    branches:
+#      - master
+#  pull_request:
+#    branches:
+#      - master
 jobs:
   build:
     name: Run benchmark
@@ -40,10 +40,17 @@ jobs:
           git config --global user.email "benchmarks@artipie.com"
           git status
           git add .
+          git fetch origin
+          git switch -c master origin/master
+          git checkout -b bench-${{ env.TAG }}
           git commit -m "bench: added results of benchmarks to readme (through action)"
+          echo "------ git remote ------"
+          git remote -v
           git rev-parse HEAD
           git show-ref --head
           git --no-pager branch -avv --no-color --list
           git log -1 --no-color
           git status
-          git push pull HEAD:223/merge
+          git config -l
+          echo "------ git push now ------"
+          GIT_TRACE_PACKET=1 GIT_TRACE=1 GIT_CURL_VERBOSE=1 git push origin HEAD
