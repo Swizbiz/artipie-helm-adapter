@@ -28,6 +28,8 @@ jobs:
         run: |
           git config --global user.name "github-action"
           git config --global user.email "benchmarks@artipie.com"
+          git fetch origin
+          git switch -C master origin/master
           git add .
           git commit -m "bench: added results of benchmarks to readme (through action)"
           git push origin HEAD:master
