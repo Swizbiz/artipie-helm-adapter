@@ -24,12 +24,20 @@ jobs:
           cp -avr out/${{ env.REPO }}/* $GITHUB_WORKSPACE/benchmarks/results/${{ env.TAG }}
           cd ../..
           rm -rf tmp-bench
-      - name: Commit and push results
+      - name: Set user and fetch
         run: |
           git config --global user.name "github-action"
           git config --global user.email "benchmarks@artipie.com"
           git fetch origin
           git switch -C master origin/master
-          git add .
-          git commit -m "bench: added results of benchmarks to readme (through action)"
-          git push origin HEAD:master
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v3.10.1
+        with:
+          commit-message: "bench: added results of benchmarks for ${{ env.TAG }}"
+          branch: bench-results-${{ env.TAG }}
+          delete-branch: true
+          title: "bench: results of benchmarks for version ${{ env.TAG }}"
+          assignees: genryxy
+          reviewers: genryxy
+          labels: |
+            benchmarks-report
