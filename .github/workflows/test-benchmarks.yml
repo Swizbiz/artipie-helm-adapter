@@ -1,0 +1,33 @@
+name: TEST run benchmarks
+on:
+  push:
+    branches:
+      - master
+    pull_request:
+      - master
+jobs:
+  build:
+    name: Run benchmark
+    runs-on: [self-hosted, bench]
+    steps:
+      - uses: actions/checkout@v2.3.3
+      - name: Set env
+        run: |
+          echo "TAG=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+          echo "REPO=helm" >> $GITHUB_ENV
+          echo "http_proxy=http://localhost:3128" >> $GITHUB_ENV
+          echo "https_proxy=http://localhost:3128" >> $GITHUB_ENV
+      - name: Check curl
+        run: |
+          echo "curl api.github"
+          curl -v https://api.github.com/v3
+          echo "curl http google"
+          curl -v http://google.com
+          echo "curl https google"
+          curl -v https://google.com
+      - name: Set user and fetch
+        run: |
+          git config --global user.name "github-action"
+          git config --global user.email "benchmarks@artipie.com"
+          git fetch origin
+          git switch -C master origin/master
