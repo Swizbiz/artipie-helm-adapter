@@ -36,6 +36,6 @@ jobs:
           curl \
             -X POST \
             -H "Accept: application/vnd.github.v3+json" \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}"
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             https://api.github.com/repos/artipie/artipie/pulls \
             -d '{"head":"head","base":"master","title":"bench: results of benchmarks for version ${{ env.TAG }}"}'
