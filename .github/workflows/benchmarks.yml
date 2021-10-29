@@ -17,13 +17,14 @@ jobs:
           echo "https_proxy=http://localhost:3128" >> $GITHUB_ENV
       - name: Run target benchmark
         run: |
-          git clone https://github.com/artipie/benchmarks.git tmp-bench
-          cd tmp-bench/adapters
-          make run TARGET=${{ env.REPO }}
           mkdir -p $GITHUB_WORKSPACE/benchmarks/results/${{ env.TAG }}
-          cp -avr out/${{ env.REPO }}/* $GITHUB_WORKSPACE/benchmarks/results/${{ env.TAG }}
-          cd ../..
-          rm -rf tmp-bench
+#          git clone https://github.com/artipie/benchmarks.git tmp-bench
+#          cd tmp-bench/adapters
+#          make run TARGET=${{ env.REPO }}
+#          mkdir -p $GITHUB_WORKSPACE/benchmarks/results/${{ env.TAG }}
+#          cp -avr out/${{ env.REPO }}/* $GITHUB_WORKSPACE/benchmarks/results/${{ env.TAG }}
+#          cd ../..
+#          rm -rf tmp-bench
       - name: Set user and fetch
         run: |
           git config --global user.name "github-action"
@@ -31,13 +32,10 @@ jobs:
           git fetch origin
           git switch -C master origin/master
       - name: Create pull request
-        uses: peter-evans/create-pull-request@v3.10.1
-        with:
-          commit-message: "bench: added results of benchmarks for ${{ env.TAG }}"
-          branch: bench-results-${{ env.TAG }}
-          delete-branch: true
-          title: "bench: results of benchmarks for version ${{ env.TAG }}"
-          assignees: genryxy
-          reviewers: genryxy
-          labels: |
-            benchmarks-report
+        run: |
+          curl \
+            -X POST \
+            -H "Accept: application/vnd.github.v3+json" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}"
+            https://api.github.com/repos/artipie/artipie/pulls \
+            -d '{"head":"head","base":"master","title":"bench: results of benchmarks for version ${{ env.TAG }}"}'
