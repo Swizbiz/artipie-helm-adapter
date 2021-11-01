@@ -18,6 +18,7 @@ jobs:
       - name: Run target benchmark
         run: |
           mkdir -p $GITHUB_WORKSPACE/benchmarks/results/${{ env.TAG }}
+          echo "some data" > $GITHUB_WORKSPACE/benchmarks/results/${{ env.TAG }}/data.txt
 #          git clone https://github.com/artipie/benchmarks.git tmp-bench
 #          cd tmp-bench/adapters
 #          make run TARGET=${{ env.REPO }}
@@ -31,11 +32,11 @@ jobs:
           git config --global user.email "benchmarks@artipie.com"
           git fetch origin
           git switch -C master origin/master
-      - name: Create pull request
-        run: |
-          curl \
-            -X POST \
-            -H "Accept: application/vnd.github.v3+json" \
-            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            https://api.github.com/repos/artipie/artipie/pulls \
-            -d '{"head":"head","base":"master","title":"bench: results of benchmarks for version ${{ env.TAG }}"}'
+      - name: Upload to Artipie with version
+        uses: "artipie/upload-action@v0.2.1"
+        with:
+          repo: "artipie/benchmarks"
+          file: "$GITHUB_WORKSPACE/benchmarks/results/${{ env.TAG }}/data.txt"
+          path: "results/${{ env.TAG }}/data.txt"
+          username: artipie
+          password: "${{ secrets.ARTIPIE_PASSWORD }}"
