@@ -17,15 +17,13 @@ jobs:
           echo "https_proxy=http://localhost:3128" >> $GITHUB_ENV
       - name: Run target benchmark
         run: |
+          git clone https://github.com/artipie/benchmarks.git tmp-bench
+          cd tmp-bench/adapters
+          make run TARGET=${{ env.REPO }}
           mkdir -p $GITHUB_WORKSPACE/benchmarks/results/${{ env.TAG }}
-          echo "some data" > $GITHUB_WORKSPACE/benchmarks/results/${{ env.TAG }}/data.txt
-#          git clone https://github.com/artipie/benchmarks.git tmp-bench
-#          cd tmp-bench/adapters
-#          make run TARGET=${{ env.REPO }}
-#          mkdir -p $GITHUB_WORKSPACE/benchmarks/results/${{ env.TAG }}
-#          cp -avr out/${{ env.REPO }}/* $GITHUB_WORKSPACE/benchmarks/results/${{ env.TAG }}
-#          cd ../..
-#          rm -rf tmp-bench
+          cp -avr out/${{ env.REPO }}/* $GITHUB_WORKSPACE/benchmarks/results/${{ env.TAG }}
+          cd ../..
+          rm -rf tmp-bench
       - name: Set user and fetch
         run: |
           git config --global user.name "github-action"
