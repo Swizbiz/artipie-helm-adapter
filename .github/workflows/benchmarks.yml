@@ -2,7 +2,7 @@ name: Run benchmarks
 on:
   push:
     tags:
-      - 'test*'
+      - 'v*'
 jobs:
   running-bench:
     name: Run benchmark
