@@ -36,7 +36,7 @@ jobs:
         uses: "artipie/upload-action@v0.2.1"
         with:
           repo: "artipie/benchmarks"
-          file: "$GITHUB_WORKSPACE/benchmarks/results/${{ env.TAG }}/data.txt"
+          file: "benchmarks/results/${{ env.TAG }}/data.txt"
           path: "results/${{ env.TAG }}/data.txt"
           username: artipie
           password: "${{ secrets.ARTIPIE_PASSWORD }}"
