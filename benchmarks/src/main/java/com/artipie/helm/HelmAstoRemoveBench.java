@@ -8,6 +8,7 @@ import com.artipie.asto.Content;
 import com.artipie.asto.Key;
 import com.artipie.asto.memory.BenchmarkStorage;
 import com.artipie.asto.memory.InMemoryStorage;
+import com.artipie.asto.misc.UncheckedIOScalar;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -16,7 +17,6 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.cactoos.scalar.Unchecked;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Level;
@@ -87,13 +87,12 @@ public class HelmAstoRemoveBench {
         this.inmemory = new InMemoryStorage();
         try (Stream<Path> files = Files.list(Paths.get(HelmAstoRemoveBench.BENCH_DIR))) {
             files.forEach(
-                file -> {
-                    final byte[] bytes = new Unchecked<>(() -> Files.readAllBytes(file)).value();
-                    this.inmemory.save(
-                        new Key.From(file.getFileName().toString()),
-                        new Content.From(bytes)
-                    ).join();
-                }
+                file -> this.inmemory.save(
+                    new Key.From(file.getFileName().toString()),
+                    new Content.From(
+                        new UncheckedIOScalar<>(() -> Files.readAllBytes(file)).value()
+                    )
+                ).join()
             );
         }
     }

@@ -4,10 +4,12 @@
  */
 package com.artipie.helm;
 
+import com.artipie.asto.ArtipieIOException;
 import com.artipie.asto.Content;
 import com.artipie.asto.Key;
 import com.artipie.asto.memory.BenchmarkStorage;
 import com.artipie.asto.memory.InMemoryStorage;
+import com.artipie.asto.misc.UncheckedIOScalar;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -16,7 +18,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
-import org.cactoos.scalar.Unchecked;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Level;
@@ -78,7 +79,7 @@ public class HelmAstoAddBench {
                 file -> {
                     final String name = file.getFileName().toString();
                     if (!name.equals("index.yaml")) {
-                        final byte[] bytes = new Unchecked<>(
+                        final byte[] bytes = new UncheckedIOScalar<>(
                             () -> Files.readAllBytes(file)
                         ).value();
                         final Key keyfile = new Key.From(name);

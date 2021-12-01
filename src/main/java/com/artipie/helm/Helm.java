@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -27,7 +28,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.NotImplementedException;
-import org.cactoos.list.ListOf;
 
 /**
  * Helm repository.
@@ -328,7 +328,7 @@ public interface Helm {
             final Path tmpdir,
             final Key idxtarget
         ) {
-            return new Copy(tmpstrg, new ListOf<>(outidx)).copy(this.storage)
+            return new Copy(tmpstrg, Collections.singletonList(outidx)).copy(this.storage)
                 .thenCompose(noth -> this.storage.move(outidx, idxtarget))
                 .thenApply(noth -> FileUtils.deleteQuietly(tmpdir.toFile()))
                 .thenCompose(ignore -> CompletableFuture.allOf());
