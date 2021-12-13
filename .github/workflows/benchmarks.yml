@@ -19,9 +19,7 @@ jobs:
         run: |
           git clone https://github.com/artipie/benchmarks.git tmp-bench
           cd tmp-bench/adapters
-          make write-results TARGET=${{ env.REPO }} TAG=${{ env.TAG }}
-          mkdir -p $GITHUB_WORKSPACE/benchmarks/results/${{ env.TAG }}
-          cp -avr out/${{ env.REPO }}/* $GITHUB_WORKSPACE/benchmarks/results/${{ env.TAG }}
+          make draw-charts TARGET=${{ env.REPO }} TAG=${{ env.TAG }}
           cd ../..
           rm -rf tmp-bench
       - name: Set user and fetch
