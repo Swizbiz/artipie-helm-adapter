@@ -23,3 +23,4 @@ jobs:
       - uses: artipie/benchmarks/adapters/pull-request@master
         with:
           tag: "${GITHUB_REF#refs/*/}"
+          token: ${{ secrets.GITHUB_TOKEN }}
