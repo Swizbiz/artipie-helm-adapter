@@ -1,9 +1,8 @@
 name: Update copyright year
 
-on: workflow_dispatch
-#on:
-#  schedule:
-#    - cron: '0 1 22 * *' # Runs at 01:00 UTC on the 22nd of every month
+on:
+  schedule:
+    - cron: '0 1 22 * *' # Runs at 01:00 UTC on the 22nd of every month
 
 jobs:
   license:
